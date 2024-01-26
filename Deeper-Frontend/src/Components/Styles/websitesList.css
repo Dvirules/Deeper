@@ -1,0 +1,21 @@
+.websites-container {
+
+}
+
+.plus {
+    display: flex;
+    justify-content: center;
+}
+
+.plus-img {
+    width: 10rem;
+    background-repeat: no-repeat;
+    background-size: contain;
+    cursor: pointer;
+}
+
+.cards {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: auto auto auto;
+}

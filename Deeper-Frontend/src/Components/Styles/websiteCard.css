@@ -1,0 +1,11 @@
+.website-card {
+    display: flex;
+    flex-direction: column;
+    background-color: cadetblue;
+    border: 1px solid;
+    border-radius: 1rem;
+    padding: 1rem;
+    gap: 1rem;
+    align-items: center;
+    font-size: large;
+}
