@@ -1,52 +1,84 @@
 const express = require('express');
-const axios = require('axios');
 const cron = require('node-cron');
 const app = express();
 const cors = require('cors');
 const PORT = process.env.PORT || 3001;
+let monitoredWebsites = require('./monitoredWebsitesDbMock.js');
+const latencyFunctions = require('./handlerFunctions/latencyFunctions.js');
 
 app.use(cors());
-
-let monitoredWebsites = [
-  { id: 1, name: 'Google', url: 'https://www.google.com', interval: 30, latency: null },
-  { id: 2, name: 'Itzik', url: 'https://www.google.com', interval: 30, latency: null },
-  { id: 3, name: 'Moshe', url: 'https://www.google.com', interval: 30, latency: null },
-  { id: 4, name: 'Dani', url: 'https://www.google.com', interval: 30, latency: null },
-];
-
-// Function to check latency for a website
-const checkLatency = async (website) => {
-  try {
-    const start = new Date();
-    await axios.head(website.url);
-    const end = new Date();
-    const latency = end - start;
-    website.latency = latency;
-  } catch (error) {
-    console.error(`Error checking latency for ${website.name}: ${error.message}`);
-  }
-};
+app.use(express.json());
 
 // Schedule latency checks every 30 minutes
-cron.schedule('*/30 * * * *', async () => {
-  console.log('Running latency checks...');
-  for (const website of monitoredWebsites) {
-    await checkLatency(website);
+cron.schedule('* * * * *', async () => {
+  console.log('Running scheduled latency checks...');
+  await latencyFunctions.checkLatencyForAll(false);
+  console.log('Scheduled latency checks completed');
+})
+
+// Routes:
+// Get all websites
+app.get('/websites', async (req, res) => {
+  try {
+    res.status(200).json(monitoredWebsites);
   }
-  console.log('Latency checks completed.');
+  catch (e) {
+    console.log(e);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
 });
 
-// CRUD operations for monitored websites
-app.get('/websites', (req, res) => {
-  res.json(monitoredWebsites);
+// Add a new website
+app.post('/addWebsite', async (req, res) => {
+  try {
+    let newWebsite = req.body;
+    allIDs = monitoredWebsites.map(website => website.id);
+    newWebsite.id = Math.max(...allIDs) + 1;
+    await latencyFunctions.checkLatency(newWebsite);
+    monitoredWebsites.push(newWebsite);
+    res.status(200).json({ success: true, message: 'Website added successfully' });
+  }
+  catch (e) {
+    console.log(e);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  };
 });
 
-app.post('/websites', (req, res) => {
-  const newWebsite = req.body;
-  monitoredWebsites.push(newWebsite);
-  res.json(newWebsite);
+// Update an existing website
+app.put('/updateWebsite/:websiteId', async (req, res) => {
+  try {
+    const websiteId = parseInt(req.params.websiteId);
+    const {name, url} = req.body;
+    for (i = 0; i < monitoredWebsites.length; i++) {
+      if (monitoredWebsites[i].id === websiteId) {
+        name !== "" ? monitoredWebsites[i].name = name : undefined;
+        url !== "" ? monitoredWebsites[i].url = url : undefined;
+        await latencyFunctions.checkLatency(monitoredWebsites[i]);
+      }
+    }
+    res.status(200).json({ success: true, message: 'Website Updated successfully' });;
+  }
+  catch (e) {
+    console.log(e);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  };
+});
+
+// Delete a website
+app.delete("/deleteWebsite/:websiteId", (req, res) => {
+  try {
+    const websiteId = parseInt(req.params.websiteId);
+    monitoredWebsites = monitoredWebsites.filter(website => website.id !== websiteId);
+    res.status(200).json(monitoredWebsites);
+  }
+  catch (e) {
+    console.log(e);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
 });
 
 app.listen(PORT, () => {
   console.log(`Server is running and listening on port ${PORT}`);
 });
+
+latencyFunctions.checkLatencyForAll(true);

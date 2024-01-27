@@ -1,14 +1,22 @@
-.websites-container {
+.all-container {
+    padding: 1rem;
+}
 
+.setting-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
 }
 
 .plus {
     display: flex;
     justify-content: center;
+    align-items: center;
 }
 
 .plus-img {
     width: 10rem;
+    height: 10rem;
     background-repeat: no-repeat;
     background-size: contain;
     cursor: pointer;
@@ -18,4 +26,14 @@
     display: grid;
     gap: 1rem;
     grid-template-columns: auto auto auto;
+}
+
+.traffic-lights-settings {
+    display: flex;
+    flex-direction: column;
+    width: 45%;
+}
+
+.traffic-lights-input {
+    width: 20%;
 }

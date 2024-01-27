@@ -8,4 +8,38 @@
     gap: 1rem;
     align-items: center;
     font-size: large;
+    font-weight: 600;
+}
+
+.buttons-container {
+    display: flex;
+    gap: 2rem;
+}
+
+.buttons {
+    width: 2rem;
+    height: 2rem;
+    background-repeat: no-repeat;
+    background-size: contain;
+    cursor: pointer;
+}
+
+.traffic-light {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 100%;
+    position: relative;
+    left: 40%;
+}
+
+.red-circle {
+    background-color: red;
+}
+
+.orange-circle {
+    background-color: orange;
+}
+
+.green-circle {
+    background-color: green;
 }

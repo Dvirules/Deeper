@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import WebsitesList from './Components/websitesList';
+import AddOrUpdateForm from './Components/addOrUpdateForm';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import "../src/General.css"
@@ -9,13 +10,12 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
-  <React.StrictMode>
     <Router>
       <Routes>
         <Route path="/" Component={WebsitesList} />
+        <Route path="/form" Component={AddOrUpdateForm} />
       </Routes>
     </Router>
-  </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function
