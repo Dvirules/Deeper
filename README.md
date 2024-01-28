@@ -1,0 +1,1 @@
+A fullstack (frontend-react.ts, backend-node.js) project that monitors websites and displays them as cards in a gird layout with traffic lights indicators according to their latency ping answer in ms. You may use the two run scripts for your convenience to run the project.
