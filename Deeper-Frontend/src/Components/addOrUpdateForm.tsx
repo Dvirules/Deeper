@@ -53,6 +53,7 @@ function AddOrUpdateForm() {
         if (name === "" && url === "") {
             alert("Please change at least one field when updating a website");
             setSubmitText("Update!")
+            setDisable(false);
             return;
         }
         axios.put(`http://localhost:3001/updateWebsite/${id}`, { name: name, url: url }).then(res => {

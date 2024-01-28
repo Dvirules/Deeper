@@ -19,13 +19,40 @@ function WebsitesList() {
     const [isLoading, setIsLoading] = useState(true);
     const [green, setGreen] = useState(190);
     const [orange, setOrange] = useState(350);
+    const [interval, setInterval] = useState(1);
+    const [intervalText, setIntervalText] = useState(1);
     const navigator = useNavigate();
 
     const getWebsitesList = async () => {
-        const req_url = "http://localhost:3001/websites";
-        const res = await axios.get(req_url)
-        setWebsites(res.data);
-        setIsLoading(false);
+        try {
+            const req_url = "http://localhost:3001/websites";
+            const res = await axios.get(req_url)
+            setWebsites(res.data);
+            setIsLoading(false);
+        } catch (e) {
+            console.log(e);
+        }
+    };
+
+    const getTimeInterval = async () => {
+        try {
+            const res = await axios.get("http://localhost:3001/interval");
+            setInterval(res.data);
+            setIntervalText(res.data);
+        } catch (e) {
+            console.log(e);
+        }
+    };
+
+    const setTimeInterval = async (e: any) => {
+        try {
+            e.preventDefault();
+            const res = await axios.put("http://localhost:3001/interval", { timeInterval: interval });
+            setInterval(res.data);
+            setIntervalText(res.data);
+        } catch (e) {
+            console.log(e);
+        }
     };
 
     const addFormNav = () => {
@@ -33,7 +60,7 @@ function WebsitesList() {
     };
 
     const deleteCard = async (id: number) => {
-        axios.delete(`http://localhost:3001/deleteWebsite/${id}`).then(res => setWebsites(res.data));       // Wanted to demonstrate the use of both "async/await" and ".then"
+        axios.delete(`http://localhost:3001/deleteWebsite/${id}`).then(res => setWebsites(res.data)).catch(e => console.log(e));  // Wanted to demonstrate the use of both "async/await" and ".then"
     };
 
     const handleGreenChange = (event: any): void => {
@@ -55,9 +82,20 @@ function WebsitesList() {
         }
         setOrange(orangeValue);
     };
+
+    const handleIntervalChange = (event: any): void => {
+        const intervalValue = parseInt(event.target.value);
+        if (intervalValue > 59 || intervalValue < 1) {
+            alert("Please select an interval of 1-59 minutes.");
+            event.target.value = interval;
+            return;
+        }
+        setInterval(intervalValue);
+    };
     
     useEffect(() => {
         getWebsitesList();
+        getTimeInterval();
     }, []);
 
     return (
@@ -77,7 +115,14 @@ function WebsitesList() {
                                 <label htmlFor="orange">Input the highest threshold latency for the ORANGE indicator (in ms):</label>
                                 <input id="orange" className="traffic-lights-input" type="number" defaultValue={350} onChange={handleOrangeChange} />
                             </div>
+
+                            <form className="latency-settings" onSubmit={setTimeInterval}>
+                                <span>{`Current time interval for latency checks: Every ${intervalText} minutes of the hour. To set a new interval:`}</span>
+                                <input className="interval-input" type="number" placeholder="New interval" onChange={handleIntervalChange} />
+                                <input className="interval-button" type="submit" value="Set time interval" />
+                            </form>
                         </div>
+
                         <div className="cards">
                             {websites.map((website: Website) => (
                                 <WebsiteCard key={website.id} website={website} delFunc={deleteCard} green={green} orange={orange}/>

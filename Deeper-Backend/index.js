@@ -5,16 +5,13 @@ const cors = require('cors');
 const PORT = process.env.PORT || 3001;
 let monitoredWebsites = require('./monitoredWebsitesDbMock.js');
 const latencyFunctions = require('./handlerFunctions/latencyFunctions.js');
+let timeInterval = 1;
 
 app.use(cors());
 app.use(express.json());
 
-// Schedule latency checks every 30 minutes
-cron.schedule('* * * * *', async () => {
-  console.log('Running scheduled latency checks...');
-  await latencyFunctions.checkLatencyForAll(false);
-  console.log('Scheduled latency checks completed');
-})
+// Schedule initial latency checks every 1 minute
+let cronTask = cron.schedule(`*/1 * * * *`, async () => latencyFunctions.checkLatencyForAll(false));
 
 // Routes:
 // Get all websites
@@ -56,7 +53,7 @@ app.put('/updateWebsite/:websiteId', async (req, res) => {
         await latencyFunctions.checkLatency(monitoredWebsites[i]);
       }
     }
-    res.status(200).json({ success: true, message: 'Website Updated successfully' });;
+    res.status(200).json({ success: true, message: 'Website Updated successfully' });
   }
   catch (e) {
     console.log(e);
@@ -70,6 +67,32 @@ app.delete("/deleteWebsite/:websiteId", (req, res) => {
     const websiteId = parseInt(req.params.websiteId);
     monitoredWebsites = monitoredWebsites.filter(website => website.id !== websiteId);
     res.status(200).json(monitoredWebsites);
+  }
+  catch (e) {
+    console.log(e);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+// Get the current time interval for latency checks
+app.get('/interval', async (req, res) => {
+  try {
+    res.status(200).json(timeInterval);
+  }
+  catch (e) {
+    console.log(e);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+// Set the current time interval for latency checks
+app.put('/interval', async (req, res) => {
+  try {
+    timeInterval = req.body.timeInterval;
+    cronTask.stop();
+    cronTask = cron.schedule(`*/${timeInterval} * * * *`, async () => latencyFunctions.checkLatencyForAll(false));
+    console.log("New time interval for latency checks updated to " + timeInterval);
+    res.status(200).json(timeInterval);
   }
   catch (e) {
     console.log(e);

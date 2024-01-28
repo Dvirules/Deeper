@@ -18,11 +18,11 @@ const latencyFunctions = {
   },
 
   checkLatencyForAll : async (isAppFirstRun) => {
-    isAppFirstRun ? console.log("Running latency checks for all websites as the app has launched") : undefined;
+    isAppFirstRun ? console.log("Running latency checks for all websites as the app has launched") : console.log('Running scheduled latency checks...');
     for (const website of monitoredWebsites) {
       await latencyFunctions.checkLatency(website);
     }
-    isAppFirstRun ? console.log("Done running initial latency checks") : undefined;
+    isAppFirstRun ? console.log("Done running initial latency checks") : console.log('Scheduled latency checks completed');;
   },
 }
 
